@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "300047516596",
+    "project_id": "ensberita",
+    "storage_bucket": "ensberita.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:300047516596:android:cec98411aadfd1dc1568e1",
+        "android_client_info": {
+          "package_name": "com.eno.ensberita"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDncVYyP_Gh9c0CPLDSkGLPzp--lz82P8c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
