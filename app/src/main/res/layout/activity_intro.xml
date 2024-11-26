@@ -43,18 +43,29 @@
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:layout_marginTop="25dp"
-                android:text="Sumber Berita yang terbest, tunggu apalagi ayo baca berita kita!"
+                android:text="Informasi akurat ada di genggaman Anda. Ayo baca beritanya!"
                 />
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@android:style/Widget.Button"
-                android:id="@+id/startBtn"
+                android:id="@+id/keAdmin"
                 android:background="@drawable/orange_bg"
                 android:textColor="@color/white"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="32dp"
-                android:text="Get Started"
+                android:text="Untuk Admin"
+                android:textSize="18sp"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                style="@android:style/Widget.Button"
+                android:id="@+id/kePelanggan"
+                android:background="@drawable/orange_bg"
+                android:textColor="@color/white"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="32dp"
+                android:text="Untuk Pembaca"
                 android:textSize="18sp"/>
 
         </LinearLayout>

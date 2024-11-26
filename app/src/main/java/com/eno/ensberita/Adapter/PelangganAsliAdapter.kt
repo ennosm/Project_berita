@@ -14,7 +14,7 @@ import com.eno.ensberita.Activity.BeritaDetailActivityPelanggan
 import com.eno.ensberita.Models.Berita
 import com.eno.ensberita.databinding.ViewholderBeritaBinding
 
-class PelangganAdapter (private val items:ArrayList<Berita>): RecyclerView.Adapter<PelangganAdapter.Viewholder>() {
+class PelangganAsliAdapter (private val items:ArrayList<Berita>): RecyclerView.Adapter<PelangganAsliAdapter.Viewholder>() {
     private var context: Context?=null
 
     inner class Viewholder(private val binding: ViewholderBeritaBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -33,21 +33,20 @@ class PelangganAdapter (private val items:ArrayList<Berita>): RecyclerView.Adapt
                 .into(binding.pic)
 
             binding.root.setOnClickListener {
-                val intent = Intent(binding.root.context, BeritaDetailActivity::class.java)
+                val intent = Intent(binding.root.context, BeritaDetailActivityPelanggan::class.java)
                 intent.putExtra("object", berita)
                 binding.root.context.startActivity(intent)
             }
-
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PelangganAdapter.Viewholder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PelangganAsliAdapter.Viewholder {
         context=parent.context
         val binding=ViewholderBeritaBinding.inflate(LayoutInflater.from(context),parent,false)
         return Viewholder(binding)
     }
 
-    override fun onBindViewHolder(holder: PelangganAdapter.Viewholder, position: Int) {
+    override fun onBindViewHolder(holder: PelangganAsliAdapter.Viewholder, position: Int) {
         holder.bind(items[position])
     }
 

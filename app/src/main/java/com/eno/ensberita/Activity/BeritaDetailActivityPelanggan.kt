@@ -63,8 +63,6 @@ class BeritaDetailActivityPelanggan : AppCompatActivity() {
         // Setup blur view
         setupBlurView()
 
-        // Cek role pengguna
-        checkUserRole()
     }
 
     private fun bindData(berita: Berita) {
@@ -94,25 +92,6 @@ class BeritaDetailActivityPelanggan : AppCompatActivity() {
             .setBlurRadius(10f)
         binding.blurView.outlineProvider = ViewOutlineProvider.BACKGROUND
         binding.blurView.clipToOutline = true
-    }
-
-    private fun checkUserRole() {
-        val currentUser = firebaseAuth.currentUser
-
-        if (currentUser != null) {
-            val databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(currentUser.uid)
-
-            databaseReference.get().addOnSuccessListener { snapshot ->
-                if (snapshot.exists()) {
-                    val role = snapshot.child("role").value.toString()
-                }
-            }.addOnFailureListener {
-                Toast.makeText(this, "Gagal memuat data pengguna", Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            // Handle jika pengguna tidak login
-            Toast.makeText(this, "Pengguna belum login", Toast.LENGTH_SHORT).show()
-        }
     }
 
     companion object {

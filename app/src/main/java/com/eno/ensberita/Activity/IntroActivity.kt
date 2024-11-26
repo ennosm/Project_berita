@@ -14,8 +14,13 @@ class IntroActivity : AppCompatActivity() {
         binding = ActivityIntroBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.startBtn.setOnClickListener{
-            startActivity(Intent(this, MainActivity::class.java))
+        binding.keAdmin.setOnClickListener{
+            startActivity(Intent(this, LoginActivity::class.java))
+        }
+
+        // Intent menuju PelangganActivity
+        binding.kePelanggan.setOnClickListener {
+            startActivity(Intent(this, PelangganMainActivity::class.java))
         }
 
         window.setFlags(

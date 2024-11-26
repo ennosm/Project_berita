@@ -41,22 +41,25 @@ class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var sharedPreferences: SharedPreferences
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        Log.d("MainActivity", "MainActivity is launched")
 
-        binding=ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         // Inisialisasi Firebase Auth
         auth = FirebaseAuth.getInstance()
 
-        // Inisialisasi SharedPreferences jika digunakan
-        sharedPreferences = getSharedPreferences("user_session", MODE_PRIVATE)
 
-        // Menangani klik logout
-        binding.logoutIcon.setOnClickListener {
-            logoutUser()
-        }
+
+        val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+        val username = sharedPreferences.getString("username", "default")
+        Log.d("MainActivity", "Username: $username")
+
 
         database=FirebaseDatabase.getInstance("https://ensberita-default-rtdb.asia-southeast1.firebasedatabase.app/")
 
@@ -71,23 +74,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun logoutUser() {
-        // Logout dari Firebase (jika menggunakan autentikasi Firebase)
+        // Tambahkan log untuk debugging
+        Log.d("Logout", "Fungsi logout dipanggil")
+
+        // Logout Firebase
         if (auth.currentUser != null) {
-            auth.signOut() // Logout Firebase
+            auth.signOut()
         }
 
-        // Hapus data pengguna dari SharedPreferences
-        sharedPreferences.edit().clear().apply()
-
-        // Navigasi ke halaman login
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK // Membersihkan tumpukan aktivitas
-        startActivity(intent)
-        finish() // Mengakhiri aktivitas saat ini agar tidak kembali ke halaman utama
+        // Verifikasi apakah user benar-benar sudah logout
+        if (auth.currentUser == null) {
+            Log.d("Logout", "User sudah logout")  // Ini seharusnya muncul di Logcat jika logout berhasil
+        } else {
+            Log.d("Logout", "User masih login")  // Jika ini muncul, logout belum berhasil
+        }
 
         // Tampilkan pesan logout berhasil
         Toast.makeText(this, "Logout berhasil", Toast.LENGTH_SHORT).show()
     }
+
 
 
     private fun ketambah() {
@@ -179,15 +184,5 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-    }
-
-    override fun onPause() {
-        super.onPause()
-        sliderHandler.removeCallbacks(sliderRunnable)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        sliderHandler.postDelayed(sliderRunnable, 2000)
     }
 }

@@ -18,6 +18,7 @@ import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import com.eno.ensberita.Adapter.PelangganAdapter
+import com.eno.ensberita.Adapter.PelangganAsliAdapter
 import com.eno.ensberita.Adapter.SliderAdapter
 import com.eno.ensberita.Models.Berita
 import com.eno.ensberita.Models.SliderItems
@@ -32,7 +33,7 @@ import com.google.firebase.database.ValueEventListener
 
 class PelangganMainActivity : AppCompatActivity() {
 
-    private lateinit var binding:ActivityPelangganMainBinding
+    private lateinit var binding: ActivityPelangganMainBinding
     private lateinit var database: FirebaseDatabase
     private val sliderHandler = Handler()
     private val sliderRunnable = Runnable {
@@ -54,12 +55,8 @@ class PelangganMainActivity : AppCompatActivity() {
         // Inisialisasi SharedPreferences jika digunakan
         sharedPreferences = getSharedPreferences("user_session", MODE_PRIVATE)
 
-        // Menangani klik logout
-        binding.logoutIcon.setOnClickListener {
-            logoutUser()
-        }
 
-        database=FirebaseDatabase.getInstance("https://ensberita-default-rtdb.asia-southeast1.firebasedatabase.app/")
+        database = FirebaseDatabase.getInstance("https://ensberita-default-rtdb.asia-southeast1.firebasedatabase.app/")
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
@@ -70,45 +67,26 @@ class PelangganMainActivity : AppCompatActivity() {
         initBeritaTerbaru()
     }
 
-    private fun logoutUser() {
-        // Logout dari Firebase (jika menggunakan autentikasi Firebase)
-        if (auth.currentUser != null) {
-            auth.signOut() // Logout Firebase
-        }
-
-        // Hapus data pengguna dari SharedPreferences
-        sharedPreferences.edit().clear().apply()
-
-        // Navigasi ke halaman login
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK // Membersihkan tumpukan aktivitas
-        startActivity(intent)
-        finish() // Mengakhiri aktivitas saat ini agar tidak kembali ke halaman utama
-
-        // Tampilkan pesan logout berhasil
-        Toast.makeText(this, "Logout berhasil", Toast.LENGTH_SHORT).show()
-    }
-
     private fun initBeritaTerbaru() {
-        val myRef: DatabaseReference =database.getReference("BeritaTerbaru")
-        binding.progressBarBeritaTerbaru.visibility= View.VISIBLE
-        val items=ArrayList<Berita>()
+        val myRef: DatabaseReference = database.getReference("BeritaTerbaru")
+        binding.progressBarBeritaTerbaru.visibility = View.VISIBLE
+        val items = ArrayList<Berita>()
 
         myRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()){
-                    for (issue in snapshot.children){
+                if (snapshot.exists()) {
+                    for (issue in snapshot.children) {
                         items.add(issue.getValue(Berita::class.java)!!)
                     }
-                    if (items.isNotEmpty()){
-                        binding.recyclerViewBeritaTerbaru.layoutManager= LinearLayoutManager(
+                    if (items.isNotEmpty()) {
+                        binding.recyclerViewBeritaTerbaru.layoutManager = LinearLayoutManager(
                             this@PelangganMainActivity,
                             LinearLayoutManager.HORIZONTAL,
                             false
                         )
-                        binding.recyclerViewBeritaTerbaru.adapter= PelangganAdapter(items)
+                        binding.recyclerViewBeritaTerbaru.adapter = PelangganAsliAdapter(items)
                     }
-                    binding.progressBarBeritaTerbaru.visibility= View.GONE
+                    binding.progressBarBeritaTerbaru.visibility = View.GONE
                 }
             }
 
@@ -162,23 +140,13 @@ class PelangganMainActivity : AppCompatActivity() {
         }
 
         binding.viewPager2.setPageTransformer(compositePageTransformer)
-        binding.viewPager2.currentItem=1
-        binding.viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback(){
-            override fun onPageSelected(position: Int){
+        binding.viewPager2.currentItem = 1
+        binding.viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 sliderHandler.removeCallbacks(sliderRunnable)
             }
         })
 
-    }
-
-    override fun onPause() {
-        super.onPause()
-        sliderHandler.removeCallbacks(sliderRunnable)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        sliderHandler.postDelayed(sliderRunnable, 2000)
     }
 }
