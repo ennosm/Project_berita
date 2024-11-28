@@ -18,6 +18,7 @@ import com.eno.ensberita.Adapter.CategoryEachBeritaAdapter
 import com.eno.ensberita.Models.Berita
 import com.eno.ensberita.databinding.ActivityBeritaDetailBinding
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import eightbitlab.com.blurview.RenderScriptBlur
 
 class BeritaDetailActivity : AppCompatActivity() {

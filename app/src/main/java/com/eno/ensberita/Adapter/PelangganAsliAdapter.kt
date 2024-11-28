@@ -2,6 +2,7 @@ package com.eno.ensberita.Adapter
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -16,6 +17,7 @@ import com.eno.ensberita.databinding.ViewholderBeritaBinding
 
 class PelangganAsliAdapter (private val items:ArrayList<Berita>): RecyclerView.Adapter<PelangganAsliAdapter.Viewholder>() {
     private var context: Context?=null
+    private var beritaFilteredList = ArrayList<Berita>(items)
 
     inner class Viewholder(private val binding: ViewholderBeritaBinding) : RecyclerView.ViewHolder(binding.root) {
 
@@ -50,5 +52,34 @@ class PelangganAsliAdapter (private val items:ArrayList<Berita>): RecyclerView.A
         holder.bind(items[position])
     }
 
-    override fun getItemCount(): Int =items.size
+    override fun getItemCount(): Int = beritaFilteredList.size
+
+
+    fun filter(query: String) {
+        beritaFilteredList.clear()
+
+        if (query.isEmpty()) {
+            // Jika query kosong, tampilkan semua berita
+            beritaFilteredList.addAll(items)
+        } else {
+            // Normalisasi input pencarian (trim spasi dan tidak peka huruf besar/kecil)
+            val adjustedQuery = query.trim().lowercase()
+
+            // Filter berita yang cocok dengan query
+            val filtered = items.filter { berita ->
+                // Pastikan 'title' tidak null dan cocok dengan query
+                val title = berita.title?.trim()?.lowercase() ?: ""
+                title.contains(adjustedQuery)
+            }
+
+            beritaFilteredList.addAll(filtered)
+        }
+
+        // Debugging: log query dan hasil filter
+        Log.d("Filter", "Query: $query, Filtered Results: ${beritaFilteredList.map { it.title }}")
+
+        // Update RecyclerView setelah perubahan
+        notifyDataSetChanged()
+    }
+
 }

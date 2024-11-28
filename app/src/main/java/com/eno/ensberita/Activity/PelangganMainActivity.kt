@@ -4,6 +4,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
@@ -33,6 +35,7 @@ import com.google.firebase.database.ValueEventListener
 
 class PelangganMainActivity : AppCompatActivity() {
 
+    private lateinit var adapter: PelangganAsliAdapter
     private lateinit var binding: ActivityPelangganMainBinding
     private lateinit var database: FirebaseDatabase
     private val sliderHandler = Handler()
@@ -65,6 +68,18 @@ class PelangganMainActivity : AppCompatActivity() {
 
         initBanner()
         initBeritaTerbaru()
+
+        // Setup search functionality
+        binding.etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Filter berita berdasarkan input pencarian
+                (binding.recyclerViewBeritaTerbaru.adapter as PelangganAsliAdapter).filter(s.toString())
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
 
     private fun initBeritaTerbaru() {
@@ -72,13 +87,14 @@ class PelangganMainActivity : AppCompatActivity() {
         binding.progressBarBeritaTerbaru.visibility = View.VISIBLE
         val items = ArrayList<Berita>()
 
-        myRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        myRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     for (issue in snapshot.children) {
                         items.add(issue.getValue(Berita::class.java)!!)
                     }
                     if (items.isNotEmpty()) {
+                        adapter = PelangganAsliAdapter(items)
                         binding.recyclerViewBeritaTerbaru.layoutManager = LinearLayoutManager(
                             this@PelangganMainActivity,
                             LinearLayoutManager.HORIZONTAL,

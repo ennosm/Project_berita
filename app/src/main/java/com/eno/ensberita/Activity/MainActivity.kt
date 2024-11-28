@@ -4,6 +4,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
@@ -37,23 +39,32 @@ class MainActivity : AppCompatActivity() {
     private val sliderRunnable = Runnable {
         binding.viewPager2.currentItem = binding.viewPager2.currentItem + 1
     }
+
     // Tambahkan referensi ke Firebase Auth
     private lateinit var auth: FirebaseAuth
     private lateinit var sharedPreferences: SharedPreferences
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Log.d("MainActivity", "MainActivity is launched")
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val query = s.toString().trim()
+                (binding.recyclerViewBeritaTerbaru.adapter as? PelangganAdapter)?.filter(query)
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
         // Inisialisasi Firebase Auth
         auth = FirebaseAuth.getInstance()
-
 
 
         val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
@@ -61,7 +72,8 @@ class MainActivity : AppCompatActivity() {
         Log.d("MainActivity", "Username: $username")
 
 
-        database=FirebaseDatabase.getInstance("https://ensberita-default-rtdb.asia-southeast1.firebasedatabase.app/")
+        database =
+            FirebaseDatabase.getInstance("https://ensberita-default-rtdb.asia-southeast1.firebasedatabase.app/")
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
@@ -71,7 +83,9 @@ class MainActivity : AppCompatActivity() {
         initBanner()
         initBeritaTerbaru()
         ketambah()
+        setTambahButtonListener()
     }
+
 
     private fun logoutUser() {
         // Tambahkan log untuk debugging
@@ -84,7 +98,10 @@ class MainActivity : AppCompatActivity() {
 
         // Verifikasi apakah user benar-benar sudah logout
         if (auth.currentUser == null) {
-            Log.d("Logout", "User sudah logout")  // Ini seharusnya muncul di Logcat jika logout berhasil
+            Log.d(
+                "Logout",
+                "User sudah logout"
+            )  // Ini seharusnya muncul di Logcat jika logout berhasil
         } else {
             Log.d("Logout", "User masih login")  // Jika ini muncul, logout belum berhasil
         }
@@ -92,7 +109,6 @@ class MainActivity : AppCompatActivity() {
         // Tampilkan pesan logout berhasil
         Toast.makeText(this, "Logout berhasil", Toast.LENGTH_SHORT).show()
     }
-
 
 
     private fun ketambah() {
@@ -104,25 +120,25 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun initBeritaTerbaru() {
-        val myRef:DatabaseReference=database.getReference("BeritaTerbaru")
-        binding.progressBarBeritaTerbaru.visibility=View.VISIBLE
-        val items=ArrayList<Berita>()
+        val myRef: DatabaseReference = database.getReference("BeritaTerbaru")
+        binding.progressBarBeritaTerbaru.visibility = View.VISIBLE
+        val items = ArrayList<Berita>()
 
-        myRef.addListenerForSingleValueEvent(object : ValueEventListener{
+        myRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()){
-                    for (issue in snapshot.children){
+                if (snapshot.exists()) {
+                    for (issue in snapshot.children) {
                         items.add(issue.getValue(Berita::class.java)!!)
                     }
-                    if (items.isNotEmpty()){
-                        binding.recyclerViewBeritaTerbaru.layoutManager=LinearLayoutManager(
+                    if (items.isNotEmpty()) {
+                        binding.recyclerViewBeritaTerbaru.layoutManager = LinearLayoutManager(
                             this@MainActivity,
                             LinearLayoutManager.HORIZONTAL,
                             false
                         )
-                        binding.recyclerViewBeritaTerbaru.adapter=PelangganAdapter(items)
+                        binding.recyclerViewBeritaTerbaru.adapter = PelangganAdapter(items)
                     }
-                    binding.progressBarBeritaTerbaru.visibility=View.GONE
+                    binding.progressBarBeritaTerbaru.visibility = View.GONE
                 }
             }
 
@@ -130,7 +146,7 @@ class MainActivity : AppCompatActivity() {
                 binding.progressBarBeritaTerbaru.visibility = View.GONE
                 binding.progressBarSlider.visibility = View.GONE
                 error.message?.let {
-                    Log.e("FirebaseError", it)
+                    Log.e("FirebaseError", error.message)
                 }
             }
 
@@ -155,7 +171,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Tangani error sesuai kebutuhan
+                Log.e("FirebaseError", error.message)
+                binding.progressBarSlider.visibility = View.GONE
             }
         })
     }
@@ -176,13 +193,36 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.viewPager2.setPageTransformer(compositePageTransformer)
-        binding.viewPager2.currentItem=1
-        binding.viewPager2.registerOnPageChangeCallback(object :ViewPager2.OnPageChangeCallback(){
-            override fun onPageSelected(position: Int){
+        binding.viewPager2.currentItem = 1
+        binding.viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 sliderHandler.removeCallbacks(sliderRunnable)
             }
         })
 
+    }
+
+    private fun setTambahButtonListener() {
+        binding.btnTambahBerita.setOnClickListener {
+            startActivity(Intent(this, TambahActivity::class.java))
+        }
+    }
+
+    private fun setupBannerViewPager(lists: MutableList<SliderItems>) {
+        binding.viewPager2.apply {
+            adapter = SliderAdapter(lists, this)
+            clipToPadding = false
+            clipChildren = false
+            offscreenPageLimit = 3
+            getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+            setPageTransformer(CompositePageTransformer().apply {
+                addTransformer(MarginPageTransformer(40))
+                addTransformer(ViewPager2.PageTransformer { page, position ->
+                    val scale = 0.85f + (1 - kotlin.math.abs(position)) * 0.15f
+                    page.scaleY = scale
+                })
+            })
+        }
     }
 }
